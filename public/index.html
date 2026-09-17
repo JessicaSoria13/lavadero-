@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reservar turno · Lavadero</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="encabezado">
+  <div class="contenido">
+    <div class="marca">
+      <svg class="logo-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="100" height="100" rx="16" fill="#101820"/>
+        <path d="M22 63 C22 51 30 45 50 45 C70 45 78 51 78 63 L78 69 C78 72 75 74 72 74 L28 74 C25 74 22 72 22 69 Z" fill="#00b8c9"/>
+        <path d="M34 45 C37 34 43 29 50 29 C57 29 63 34 66 45 Z" fill="#00b8c9"/>
+        <circle cx="34" cy="74" r="8" fill="#101820"/>
+        <circle cx="66" cy="74" r="8" fill="#101820"/>
+        <circle cx="34" cy="74" r="3.2" fill="#ffcb05"/>
+        <circle cx="66" cy="74" r="3.2" fill="#ffcb05"/>
+        <path d="M24 16 C24 20.5 19 22 19 27 C19 30 21.2 32 24 32 C26.8 32 29 30 29 27 C29 22 24 20.5 24 16 Z" fill="#ffcb05"/>
+        <path d="M14 34 C14 37 11 38 11 41 C11 43 12.5 44.3 14 44.3 C15.5 44.3 17 43 17 41 C17 38 14 37 14 34 Z" fill="#ffcb05"/>
+      </svg>
+      <h1 class="rotulo" id="nombre-negocio">Lavadero</h1>
+    </div>
+    <p class="subrotulo">Reservá tu turno online</p>
+    <nav>
+      <a href="/index.html">Reservar</a>
+      <a href="/admin/">Panel del lavadero</a>
+    </nav>
+  </div>
+</header>
+
+<main class="envoltura">
+
+  <!-- Paso 1: vehículo -->
+  <section class="paso" id="paso-vehiculo">
+    <h2 class="paso-num"><span class="n">01</span> ¿Qué vehículo traés?</h2>
+    <div class="grilla-opciones" id="lista-vehiculos"></div>
+  </section>
+
+  <!-- Paso 2: lavado -->
+  <section class="paso" id="paso-lavado" aria-disabled="true">
+    <h2 class="paso-num"><span class="n">02</span> Elegí el lavado</h2>
+    <div class="grilla-opciones" id="lista-lavados"></div>
+  </section>
+
+  <!-- Paso 3: extras -->
+  <section class="paso" id="paso-extras" aria-disabled="true">
+    <h2 class="paso-num"><span class="n">03</span> ¿Agregamos algo más? <span style="font-family:var(--f-texto); font-size:0.85rem; color:#6a7176;">(opcional)</span></h2>
+    <div class="lista-extras" id="lista-extras"></div>
+  </section>
+
+  <!-- Paso 4: fecha -->
+  <section class="paso" id="paso-fecha" aria-disabled="true">
+    <h2 class="paso-num"><span class="n">04</span> Elegí el día</h2>
+    <div class="campo"><input type="date" id="input-fecha" /></div>
+  </section>
+
+  <!-- Paso 5: horario -->
+  <section class="paso" id="paso-horario" aria-disabled="true">
+    <h2 class="paso-num"><span class="n">05</span> Elegí el horario</h2>
+    <div class="grilla-horarios" id="grilla-horarios"></div>
+    <p class="mensaje-vacio oculto" id="sin-horarios">No quedan horarios ese día. Probá con otra fecha.</p>
+  </section>
+
+  <!-- Paso 6: datos -->
+  <section class="paso" id="paso-datos" aria-disabled="true">
+    <h2 class="paso-num"><span class="n">06</span> Tus datos</h2>
+    <form id="form-reserva">
+      <div class="fila-2">
+        <div class="campo">
+          <label for="input-nombre">Nombre y apellido</label>
+          <input type="text" id="input-nombre" required />
+        </div>
+        <div class="campo">
+          <label for="input-telefono">Teléfono / WhatsApp</label>
+          <input type="tel" id="input-telefono" required />
+        </div>
+      </div>
+      <div class="campo">
+        <label for="input-patente">Patente (opcional)</label>
+        <input type="text" id="input-patente" placeholder="Ej: AB123CD" />
+      </div>
+      <div class="campo">
+        <label for="input-notas">Notas (opcional)</label>
+        <textarea id="input-notas" rows="2"></textarea>
+      </div>
+
+      <div class="resumen-turno" id="resumen-total"></div>
+
+      <button type="submit" class="boton boton-primario boton-ancho" id="btn-confirmar">
+        Confirmar reserva
+      </button>
+      <p class="error-msg oculto" id="error-reserva"></p>
+    </form>
+  </section>
+
+  <!-- Confirmación -->
+  <section class="paso oculto" id="paso-confirmacion">
+    <h2 class="paso-num">¡Turno reservado!</h2>
+    <div class="tarjeta-confirmacion">
+      <div class="resumen-turno" id="resumen-confirmacion"></div>
+      <div class="aviso">
+        Tu turno quedó como <strong>pendiente</strong>. Nos vamos a comunicar con vos para confirmarlo, o podés contactarnos si tenés alguna duda.
+      </div>
+      <div class="acciones">
+        <button class="boton boton-agua" id="btn-nueva-reserva">Hacer otra reserva</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --tinta: #101820;
+  --tinta-suave: #1c2732;
+  --foam: #eef4f4;
+  --panel: #ffffff;
+  --cian: #00b8c9;
+  --cian-osc: #00909e;
+  --cian-suave: #d7f1f3;
+  --amarillo: #ffcb05;
+  --amarillo-osc: #e0ac00;
+  --gris: #5b666d;
+  --borde: rgba(16, 24, 32, 0.16);
+  --borde-fuerte: rgba(16, 24, 32, 0.4);
+
+  --f-display: 'Bebas Neue', 'Archivo', sans-serif;
+  --f-texto: 'Archivo', sans-serif;
+  --radio: 2px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--foam);
+  color: var(--tinta);
+  font-family: var(--f-texto);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+a { color: inherit; }
+
+.envoltura { max-width: 640px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+
+/* --- Encabezado --- */
+.encabezado {
+  background: var(--tinta);
+  background-image: repeating-linear-gradient(
+    118deg,
+    rgba(0, 184, 201, 0.16) 0px,
+    rgba(0, 184, 201, 0.16) 2px,
+    transparent 2px,
+    transparent 34px
+  );
+  color: var(--foam);
+  padding: 2rem 1.25rem 2.1rem;
+  border-bottom: 5px solid var(--amarillo);
+}
+.encabezado .contenido { max-width: 640px; margin: 0 auto; }
+
+.marca { display: flex; align-items: center; gap: 0.85rem; }
+.marca .logo-mark { flex-shrink: 0; width: 52px; height: 52px; border-radius: 12px; }
+.marca .rotulo {
+  font-family: var(--f-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 6vw, 2.6rem);
+  letter-spacing: 0.02em;
+  margin: 0;
+  line-height: 1;
+}
+.encabezado .subrotulo { margin: 0.35rem 0 0 66px; color: var(--amarillo); font-size: 0.95rem; font-weight: 600; }
+
+.encabezado nav { margin-top: 1.4rem; display: flex; gap: 1.4rem; font-size: 0.9rem; }
+.encabezado nav a {
+  text-decoration: none; color: var(--foam); font-weight: 600;
+  border-bottom: 2px solid transparent; padding-bottom: 2px;
+}
+.encabezado nav a:hover { border-color: var(--cian); }
+
+/* --- Pasos --- */
+.paso { padding: 2rem 0; border-bottom: 1px solid var(--borde); }
+.paso:last-child { border-bottom: none; }
+.paso-num {
+  display: inline-flex; align-items: baseline; gap: 0.55rem;
+  font-family: var(--f-display); font-weight: 400; font-size: 1.7rem; letter-spacing: 0.02em;
+  margin: 0 0 1rem;
+}
+.paso-num .n {
+  color: var(--panel); background: var(--cian);
+  font-size: 0.95rem; font-family: var(--f-texto); font-weight: 800;
+  padding: 0.1rem 0.5rem; border-radius: var(--radio);
+}
+.paso[aria-disabled="true"] { opacity: 0.4; pointer-events: none; }
+
+/* --- Opciones (vehículo / lavado) --- */
+.grilla-opciones { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+@media (max-width: 480px) { .grilla-opciones { grid-template-columns: 1fr; } }
+
+.opcion {
+  display: flex; flex-direction: column; gap: 0.15rem;
+  padding: 1rem; border: 2px solid var(--borde); border-radius: var(--radio);
+  cursor: pointer; background: var(--panel); text-align: left; width: 100%;
+  font-family: var(--f-texto); color: var(--tinta);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.opcion:hover { border-color: var(--cian); }
+.opcion.seleccionada { border-color: var(--tinta); background: var(--tinta); color: var(--foam); }
+.opcion.seleccionada .detalle { color: var(--cian-suave); }
+.opcion.seleccionada .precio { color: var(--amarillo); }
+.opcion .nombre { font-weight: 700; }
+.opcion .detalle { font-size: 0.85rem; color: var(--gris); }
+.opcion .precio { font-family: var(--f-display); font-size: 1.2rem; letter-spacing: 0.02em; margin-top: 0.25rem; color: var(--cian-osc); }
+
+/* --- Extras (checkboxes) --- */
+.lista-extras { display: flex; flex-direction: column; gap: 0.55rem; }
+.opcion-extra {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.8rem 1rem; border: 2px solid var(--borde); border-radius: var(--radio);
+  cursor: pointer; background: var(--panel);
+}
+.opcion-extra:hover { border-color: var(--cian); }
+.opcion-extra.marcada { border-color: var(--tinta); background: var(--cian-suave); }
+.opcion-extra .izq { display: flex; align-items: center; gap: 0.7rem; }
+.opcion-extra input[type="checkbox"] { width: 19px; height: 19px; accent-color: var(--tinta); }
+.opcion-extra .nombre { font-weight: 700; }
+.opcion-extra .precio { font-family: var(--f-display); font-size: 1.05rem; color: var(--cian-osc); white-space: nowrap; }
+
+/* --- Formularios --- */
+label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--tinta-suave); }
+input[type="text"], input[type="tel"], input[type="date"], textarea, select {
+  width: 100%; padding: 0.7rem 0.8rem; border: 2px solid var(--borde); border-radius: var(--radio);
+  background: var(--panel); font-family: var(--f-texto); font-size: 1rem; color: var(--tinta);
+}
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--cian); outline-offset: 1px; border-color: var(--cian); }
+.campo { margin-bottom: 1rem; }
+.fila-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 480px) { .fila-2 { grid-template-columns: 1fr; } }
+
+/* --- Horarios --- */
+.grilla-horarios { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 0.5rem; }
+.slot {
+  padding: 0.55rem 0; text-align: center; border: 2px solid var(--borde); border-radius: var(--radio);
+  background: var(--panel); cursor: pointer; font-family: var(--f-texto); font-weight: 600; font-size: 0.92rem;
+}
+.slot:hover { border-color: var(--cian); }
+.slot.seleccionado { background: var(--tinta); border-color: var(--tinta); color: var(--amarillo); }
+.mensaje-vacio { color: var(--gris); font-size: 0.92rem; font-style: italic; }
+
+/* --- Botones --- */
+.boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  padding: 0.85rem 1.5rem; border-radius: var(--radio); border: 2px solid transparent;
+  font-family: var(--f-texto); font-weight: 700; font-size: 0.98rem; cursor: pointer; text-decoration: none;
+}
+.boton-primario {
+  background: var(--amarillo); color: var(--tinta);
+  text-transform: uppercase; letter-spacing: 0.04em; font-weight: 800;
+}
+.boton-primario:hover { background: var(--amarillo-osc); }
+.boton-primario:disabled { background: #c7ccce; color: #7c8388; cursor: not-allowed; }
+.boton-agua {
+  background: var(--cian); color: var(--tinta);
+  text-transform: uppercase; letter-spacing: 0.04em; font-weight: 800;
+}
+.boton-agua:hover { background: var(--cian-osc); color: var(--foam); }
+.boton-fantasma { background: transparent; border-color: var(--borde-fuerte); color: var(--tinta); }
+.boton-fantasma:hover { border-color: var(--tinta); }
+.boton-peligro { background: transparent; border-color: #c23b2a; color: #c23b2a; }
+.boton-peligro:hover { background: #c23b2a; color: var(--foam); }
+.boton-ancho { width: 100%; }
+
+/* --- Resumen / confirmación --- */
+.tarjeta-confirmacion { border: 2px solid var(--tinta); border-radius: var(--radio); padding: 1.5rem; background: var(--panel); }
+.resumen-turno { display: grid; gap: 0.5rem; margin: 1rem 0 1.5rem; }
+.resumen-turno .fila { display: flex; justify-content: space-between; font-size: 0.95rem; }
+.resumen-turno .fila.total {
+  border-top: 2px dashed var(--borde); margin-top: 0.4rem; padding-top: 0.7rem;
+  font-family: var(--f-display); font-size: 1.3rem; letter-spacing: 0.02em;
+}
+.resumen-turno .fila .k { color: var(--gris); }
+.resumen-turno .fila .v { font-weight: 700; }
+.resumen-turno .fila.total .v { color: var(--cian-osc); }
+
+.aviso {
+  margin-top: 1.25rem; padding: 1.1rem 1.2rem; border-radius: var(--radio);
+  background: var(--tinta); color: var(--foam); font-size: 0.92rem; border-left: 5px solid var(--amarillo);
+}
+
+/* --- Estado --- */
+.chip-estado { display: inline-block; padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; }
+.chip-estado.pendiente { background: #ffe9b3; color: #8a5a00; }
+.chip-estado.confirmado { background: var(--cian-suave); color: var(--cian-osc); }
+.chip-estado.cancelado { background: #f6d2ca; color: #c23b2a; }
+
+/* --- Utilidades --- */
+.oculto { display: none !important; }
+.error-msg { color: #c23b2a; font-size: 0.9rem; margin-top: 0.5rem; font-weight: 600; }
+.exito-msg { color: var(--cian-osc); font-size: 0.9rem; margin-top: 0.5rem; font-weight: 600; }
+.acciones { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+.pie { text-align: center; color: var(--gris); font-size: 0.82rem; margin-top: 3rem; }

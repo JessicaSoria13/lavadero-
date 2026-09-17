@@ -1,0 +1,20 @@
+{
+  "name": "lavadero-turnos",
+  "version": "1.0.0",
+  "description": "Sistema de reserva de turnos para lavadero (auto/moto) con extras y panel de administración",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3"
+  }
+}
