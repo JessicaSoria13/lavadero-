@@ -25,7 +25,8 @@ async function cargarConfig() {
   $('#nombre-negocio').textContent = estado.config.negocio.nombre;
   document.title = `Reservar turno · ${estado.config.negocio.nombre}`;
   renderVehiculos();
-  $('#input-fecha').min = new Date().toISOString().slice(0, 10);
+  // Fecha mínima = hoy en hora de Argentina (toISOString usa UTC y después de las 21 daba "mañana")
+  $('#input-fecha').min = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date());
 }
 
 function renderVehiculos() {

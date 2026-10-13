@@ -1,11 +1,11 @@
-function calcularCombo(db, { lavadoId, extraIds }) {
-  const lavado = db.config.lavados.find((l) => l.id === lavadoId);
+function calcularCombo(config, { lavadoId, extraIds }) {
+  const lavado = config.lavados.find((l) => l.id === lavadoId);
   if (!lavado) return { error: 'Lavado inexistente' };
 
   const idsExtras = Array.isArray(extraIds) ? extraIds : [];
   const extras = [];
   for (const id of idsExtras) {
-    const extra = db.config.extras.find((e) => e.id === id);
+    const extra = config.extras.find((e) => e.id === id);
     if (!extra) return { error: `Extra inexistente: ${id}` };
     extras.push(extra);
   }

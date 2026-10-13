@@ -1,10 +1,27 @@
 const $ = (sel) => document.querySelector(sel);
 const NOMBRES_DIA = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-const estado = { token: localStorage.getItem('admin_token') || null, config: null, filtroTodos: false, editando: null };
+// vista: 'proximos' (desde hoy en adelante) | 'dia' (un día puntual) | 'todos' (incluye pasados)
+const estado = { token: localStorage.getItem('admin_token') || null, config: null, vista: 'proximos', editando: null };
 
 function formatearMoneda(n) {
   return Number(n).toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
+}
+
+// Escapa el texto antes de meterlo en el HTML: lo que escribe el cliente al reservar
+// no tiene que poder ejecutarse como código dentro del panel.
+function esc(valor) {
+  return String(valor ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
+// Fecha de hoy (YYYY-MM-DD) en hora de Argentina, sin importar la zona de la compu
+function hoyAR() {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date());
+}
+
+function formatearFechaCorta(fechaISO) {
+  const [y, m, d] = fechaISO.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'numeric' });
 }
 
 async function apiAdmin(path, opciones = {}) {
@@ -80,7 +97,7 @@ async function iniciarApp() {
   const cfgRes = await fetch('/api/config');
   estado.config = await cfgRes.json();
   $('#nombre-negocio-admin').textContent = estado.config.negocio.nombre;
-  $('#filtro-fecha').value = new Date().toISOString().slice(0, 10);
+  $('#filtro-fecha').value = hoyAR();
   cargarTurnos();
 }
 
@@ -91,13 +108,19 @@ if (estado.token) {
 }
 
 /* ---------- Turnos ---------- */
-$('#filtro-fecha').addEventListener('change', () => { estado.filtroTodos = false; cargarTurnos(); });
+$('#filtro-vista').addEventListener('change', () => { estado.vista = $('#filtro-vista').value; cargarTurnos(); });
+$('#filtro-fecha').addEventListener('change', () => {
+  estado.vista = 'dia';
+  $('#filtro-vista').value = 'dia';
+  cargarTurnos();
+});
 $('#filtro-estado').addEventListener('change', cargarTurnos);
-$('#btn-ver-todos').addEventListener('click', () => { estado.filtroTodos = true; cargarTurnos(); });
 
 async function cargarTurnos() {
+  $('#campo-fecha').classList.toggle('oculto', estado.vista !== 'dia');
   const params = new URLSearchParams();
-  if (!estado.filtroTodos) params.set('fecha', $('#filtro-fecha').value);
+  if (estado.vista === 'proximos') params.set('desde', hoyAR());
+  if (estado.vista === 'dia') params.set('fecha', $('#filtro-fecha').value);
   if ($('#filtro-estado').value) params.set('estado', $('#filtro-estado').value);
   const res = await apiAdmin(`/turnos?${params}`);
   const data = await res.json();
@@ -117,21 +140,24 @@ function renderTablaTurnos(turnos) {
 
   turnos.forEach((t) => {
     const tr = document.createElement('tr');
-    const fechaCorta = estado.filtroTodos ? `${t.fecha} ` : '';
-    const extrasTxt = t.extras.length ? t.extras.map((e) => e.nombre).join(', ') : '—';
+    const fechaCorta = estado.vista !== 'dia'
+      ? `<strong>${t.fecha === hoyAR() ? 'Hoy' : esc(formatearFechaCorta(t.fecha))}</strong><br/>`
+      : '';
+    const extrasTxt = t.extras.length ? t.extras.map((e) => esc(e.nombre)).join(', ') : '—';
+    const id = esc(t.id);
     tr.innerHTML = `
-      <td>${fechaCorta}${t.hora}</td>
-      <td>${t.nombre}<br/><span style="color:#8a9296;font-size:0.8rem;">${t.telefono}${t.patente ? ' · ' + t.patente : ''}</span></td>
-      <td>${t.vehiculoNombre} · ${t.lavadoNombre}</td>
+      <td>${fechaCorta}${esc(t.hora)}</td>
+      <td>${esc(t.nombre)}<br/><span style="color:#8a9296;font-size:0.8rem;">${esc(t.telefono)}${t.patente ? ' · ' + esc(t.patente) : ''}</span>${t.notas ? `<br/><span style="font-size:0.8rem;">📝 ${esc(t.notas)}</span>` : ''}</td>
+      <td>${esc(t.vehiculoNombre)} · ${esc(t.lavadoNombre)}</td>
       <td>${extrasTxt}</td>
       <td>${formatearMoneda(t.precio)}</td>
-      <td><span class="chip-estado ${t.estado}">${t.estado}</span></td>
+      <td><span class="chip-estado ${esc(t.estado)}">${esc(t.estado)}</span></td>
       <td>
         <div class="acciones-fila">
-          ${t.estado !== 'confirmado' ? `<button class="boton boton-agua" data-accion="confirmar" data-id="${t.id}">Confirmar</button>` : ''}
-          <button class="boton boton-fantasma" data-accion="editar" data-id="${t.id}">Reprogramar</button>
-          ${t.estado !== 'cancelado' ? `<button class="boton boton-fantasma" data-accion="cancelar" data-id="${t.id}">Cancelar</button>` : ''}
-          <button class="boton boton-peligro" data-accion="eliminar" data-id="${t.id}">Eliminar</button>
+          ${t.estado !== 'confirmado' ? `<button class="boton boton-agua" data-accion="confirmar" data-id="${id}">Confirmar</button>` : ''}
+          <button class="boton boton-fantasma" data-accion="editar" data-id="${id}">Reprogramar</button>
+          ${t.estado !== 'cancelado' ? `<button class="boton boton-fantasma" data-accion="cancelar" data-id="${id}">Cancelar</button>` : ''}
+          <button class="boton boton-peligro" data-accion="eliminar" data-id="${id}">Eliminar</button>
         </div>
       </td>
     `;
@@ -164,7 +190,7 @@ function abrirPanelEditar(turno) {
   const panel = $('#panel-editar');
   panel.classList.remove('oculto');
   panel.innerHTML = `
-    <h3 style="font-family:var(--f-display); margin-top:0;">Reprogramar turno de ${turno.nombre}</h3>
+    <h3 style="font-family:var(--f-display); margin-top:0;">Reprogramar turno de ${esc(turno.nombre)}</h3>
     <div class="fila-2">
       <div class="campo">
         <label>Vehículo</label>
@@ -204,7 +230,7 @@ function abrirPanelEditar(turno) {
   });
 
   $('#ed-fecha').value = turno.fecha;
-  $('#ed-fecha').min = new Date().toISOString().slice(0, 10);
+  $('#ed-fecha').min = hoyAR();
   $('#ed-fecha').addEventListener('change', () => {
     estado.editando.fecha = $('#ed-fecha').value;
     cargarEdDisponibilidad();
@@ -253,7 +279,7 @@ function renderEdExtras() {
     const div = document.createElement('label');
     div.className = 'opcion-extra' + (marcado ? ' marcada' : '');
     div.innerHTML = `
-      <span class="izq"><input type="checkbox" ${marcado ? 'checked' : ''} /><span class="nombre">${ex.nombre}</span></span>
+      <span class="izq"><input type="checkbox" ${marcado ? 'checked' : ''} /><span class="nombre">${esc(ex.nombre)}</span></span>
       <span class="precio">+${formatearMoneda(ex.precio)}</span>
     `;
     const checkbox = div.querySelector('input');
@@ -348,10 +374,10 @@ function renderLavadosConfig(lavados) {
     const fila = document.createElement('div');
     fila.className = 'fila-item';
     fila.innerHTML = `
-      <input type="text" value="${l.nombre}" data-campo="nombre" placeholder="Nombre del lavado" />
-      <input type="text" value="${l.vehiculoId}" data-campo="vehiculoId" placeholder="auto / moto" />
-      <input type="number" value="${l.duracionMin}" data-campo="duracionMin" placeholder="Minutos" min="5" step="5" />
-      <input type="number" value="${l.precio}" data-campo="precio" placeholder="Precio" min="0" step="100" />
+      <input type="text" value="${esc(l.nombre)}" data-campo="nombre" placeholder="Nombre del lavado" />
+      <input type="text" value="${esc(l.vehiculoId)}" data-campo="vehiculoId" placeholder="auto / moto" />
+      <input type="number" value="${esc(l.duracionMin)}" data-campo="duracionMin" placeholder="Minutos" min="5" step="5" />
+      <input type="number" value="${esc(l.precio)}" data-campo="precio" placeholder="Precio" min="0" step="100" />
       <button type="button" class="boton boton-fantasma" data-quitar="${idx}">Quitar</button>
     `;
     cont.appendChild(fila);
@@ -393,9 +419,9 @@ function renderExtrasConfig(extras) {
     const fila = document.createElement('div');
     fila.className = 'fila-item extra';
     fila.innerHTML = `
-      <input type="text" value="${ex.nombre}" data-campo="nombre" placeholder="Nombre del extra" />
-      <input type="number" value="${ex.precio}" data-campo="precio" placeholder="Precio" min="0" step="100" />
-      <input type="number" value="${ex.duracionMin || 0}" data-campo="duracionMin" placeholder="Minutos extra" min="0" step="5" />
+      <input type="text" value="${esc(ex.nombre)}" data-campo="nombre" placeholder="Nombre del extra" />
+      <input type="number" value="${esc(ex.precio)}" data-campo="precio" placeholder="Precio" min="0" step="100" />
+      <input type="number" value="${esc(ex.duracionMin || 0)}" data-campo="duracionMin" placeholder="Minutos extra" min="0" step="5" />
       <button type="button" class="boton boton-fantasma" data-quitar="${idx}">Quitar</button>
     `;
     cont.appendChild(fila);
@@ -440,8 +466,8 @@ function renderHorariosConfig(horarios) {
     fila.dataset.dia = dia;
     fila.innerHTML = `
       <span class="dia-label">${NOMBRES_DIA[dia]}</span>
-      <input type="time" value="${cerrado ? '08:00' : h.apertura}" data-campo="apertura" ${cerrado ? 'disabled' : ''} />
-      <input type="time" value="${cerrado ? '19:00' : h.cierre}" data-campo="cierre" ${cerrado ? 'disabled' : ''} />
+      <input type="time" value="${cerrado ? '08:00' : esc(h.apertura)}" data-campo="apertura" ${cerrado ? 'disabled' : ''} />
+      <input type="time" value="${cerrado ? '19:00' : esc(h.cierre)}" data-campo="cierre" ${cerrado ? 'disabled' : ''} />
       <label style="display:flex;align-items:center;gap:0.4rem;font-weight:400;">
         <input type="checkbox" data-campo="cerrado" ${cerrado ? 'checked' : ''} style="width:auto;" /> Cerrado
       </label>

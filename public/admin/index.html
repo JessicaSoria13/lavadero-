@@ -69,7 +69,7 @@
     <form id="form-login">
       <div class="campo">
         <label for="input-password">Contraseña</label>
-        <input type="text" id="input-password" autocomplete="current-password" required style="font-family: monospace;" />
+        <input type="password" id="input-password" autocomplete="current-password" required />
       </div>
       <button type="submit" class="boton boton-primario boton-ancho">Entrar</button>
       <p class="error-msg oculto" id="error-login"></p>
@@ -90,6 +90,14 @@
 
       <div class="fila-filtro">
         <div class="campo">
+          <label for="filtro-vista">Mostrar</label>
+          <select id="filtro-vista">
+            <option value="proximos">Próximos turnos</option>
+            <option value="dia">Un día</option>
+            <option value="todos">Todos (incluye pasados)</option>
+          </select>
+        </div>
+        <div class="campo oculto" id="campo-fecha">
           <label for="filtro-fecha">Día</label>
           <input type="date" id="filtro-fecha" />
         </div>
@@ -102,14 +110,13 @@
             <option value="cancelado">Cancelado</option>
           </select>
         </div>
-        <button class="boton boton-fantasma" id="btn-ver-todos">Ver todos los días</button>
       </div>
 
       <div style="overflow-x:auto;">
         <table class="turnos">
           <thead>
             <tr>
-              <th>Hora</th><th>Cliente</th><th>Vehículo / Lavado</th><th>Extras</th><th>Total</th><th>Estado</th><th>Acciones</th>
+              <th>Día / Hora</th><th>Cliente</th><th>Vehículo / Lavado</th><th>Extras</th><th>Total</th><th>Estado</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody id="tabla-turnos-body"></tbody>
