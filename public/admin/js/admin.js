@@ -150,7 +150,7 @@ function renderTablaTurnos(turnos) {
       <td>${esc(t.nombre)}<br/><span style="color:#8a9296;font-size:0.8rem;">${esc(t.telefono)}${t.patente ? ' · ' + esc(t.patente) : ''}</span>${t.notas ? `<br/><span style="font-size:0.8rem;">📝 ${esc(t.notas)}</span>` : ''}</td>
       <td>${esc(t.vehiculoNombre)} · ${esc(t.lavadoNombre)}</td>
       <td>${extrasTxt}</td>
-      <td>${formatearMoneda(t.precio)}</td>
+      <td>${formatearMoneda(t.precio)}${t.precioDebito != null && t.precioDebito !== t.precio ? `<br/><span style="color:#8a9296;font-size:0.8rem;">${formatearMoneda(t.precioDebito)} débito</span>` : ''}</td>
       <td><span class="chip-estado ${esc(t.estado)}">${esc(t.estado)}</span></td>
       <td>
         <div class="acciones-fila">
@@ -254,6 +254,8 @@ function renderEdLavados() {
   const sel = $('#ed-lavado');
   sel.innerHTML = '';
   const lavados = estado.config.lavados.filter((l) => l.vehiculoId === estado.editando.vehiculoId);
+  // Si el lavado del turno ya no existe (se borró o renombró en Configuración), se propone el primero
+  if (!lavados.some((l) => l.id === estado.editando.lavadoId)) estado.editando.lavadoId = null;
   lavados.forEach((l) => {
     const opt = document.createElement('option');
     opt.value = l.id;
@@ -367,9 +369,24 @@ async function cargarConfigTab() {
   renderHorariosConfig(cfg.horarios);
 }
 
+// Fila de títulos arriba de cada lista de configuración
+function encabezadoConfig(clase, titulos) {
+  const fila = document.createElement('div');
+  fila.className = `fila-encabezado ${clase}`;
+  fila.innerHTML = titulos.map((t) => `<span>${t}</span>`).join('') + '<span></span>';
+  return fila;
+}
+
+// Campo vacío de "precio débito" = mismo precio que contado
+function leerPrecioDebito(fila) {
+  const valor = fila.querySelector('[data-campo="precioDebito"]').value;
+  return valor === '' ? null : Number(valor);
+}
+
 function renderLavadosConfig(lavados) {
   const cont = $('#lista-cfg-lavados');
   cont.innerHTML = '';
+  cont.appendChild(encabezadoConfig('', ['Nombre', 'Vehículo', 'Minutos', 'Contado $', 'Débito $']));
   lavados.forEach((l, idx) => {
     const fila = document.createElement('div');
     fila.className = 'fila-item';
@@ -377,7 +394,8 @@ function renderLavadosConfig(lavados) {
       <input type="text" value="${esc(l.nombre)}" data-campo="nombre" placeholder="Nombre del lavado" />
       <input type="text" value="${esc(l.vehiculoId)}" data-campo="vehiculoId" placeholder="auto / moto" />
       <input type="number" value="${esc(l.duracionMin)}" data-campo="duracionMin" placeholder="Minutos" min="5" step="5" />
-      <input type="number" value="${esc(l.precio)}" data-campo="precio" placeholder="Precio" min="0" step="100" />
+      <input type="number" value="${esc(l.precio)}" data-campo="precio" placeholder="Contado" min="0" step="100" />
+      <input type="number" value="${esc(l.precioDebito)}" data-campo="precioDebito" placeholder="= contado" min="0" step="100" />
       <button type="button" class="boton boton-fantasma" data-quitar="${idx}">Quitar</button>
     `;
     cont.appendChild(fila);
@@ -408,19 +426,22 @@ function leerLavadosDesdeUI() {
     nombre: fila.querySelector('[data-campo="nombre"]').value.trim(),
     vehiculoId: fila.querySelector('[data-campo="vehiculoId"]').value.trim() || 'auto',
     duracionMin: Number(fila.querySelector('[data-campo="duracionMin"]').value) || 30,
-    precio: Number(fila.querySelector('[data-campo="precio"]').value) || 0
+    precio: Number(fila.querySelector('[data-campo="precio"]').value) || 0,
+    precioDebito: leerPrecioDebito(fila)
   }));
 }
 
 function renderExtrasConfig(extras) {
   const cont = $('#lista-cfg-extras');
   cont.innerHTML = '';
+  cont.appendChild(encabezadoConfig('extra', ['Nombre', 'Contado $', 'Débito $', 'Minutos extra']));
   extras.forEach((ex, idx) => {
     const fila = document.createElement('div');
     fila.className = 'fila-item extra';
     fila.innerHTML = `
       <input type="text" value="${esc(ex.nombre)}" data-campo="nombre" placeholder="Nombre del extra" />
-      <input type="number" value="${esc(ex.precio)}" data-campo="precio" placeholder="Precio" min="0" step="100" />
+      <input type="number" value="${esc(ex.precio)}" data-campo="precio" placeholder="Contado" min="0" step="100" />
+      <input type="number" value="${esc(ex.precioDebito)}" data-campo="precioDebito" placeholder="= contado" min="0" step="100" />
       <input type="number" value="${esc(ex.duracionMin || 0)}" data-campo="duracionMin" placeholder="Minutos extra" min="0" step="5" />
       <button type="button" class="boton boton-fantasma" data-quitar="${idx}">Quitar</button>
     `;
@@ -451,6 +472,7 @@ function leerExtrasDesdeUI() {
     id: ids[idx] || `extra_${Date.now()}_${idx}`,
     nombre: fila.querySelector('[data-campo="nombre"]').value.trim(),
     precio: Number(fila.querySelector('[data-campo="precio"]').value) || 0,
+    precioDebito: leerPrecioDebito(fila),
     duracionMin: Number(fila.querySelector('[data-campo="duracionMin"]').value) || 0
   }));
 }

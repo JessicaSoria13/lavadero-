@@ -6,7 +6,8 @@ const estado = {
   fecha: null,
   hora: null,
   duracionMin: null,
-  precio: null
+  precio: null,
+  precioDebito: null
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -14,6 +15,18 @@ const $ = (sel) => document.querySelector(sel);
 function formatearMoneda(n) {
   return n.toLocaleString('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 });
 }
+// Precio con débito (si no tiene uno propio, es igual al de contado)
+function precioDebitoDe(item) {
+  return item.precioDebito != null && item.precioDebito !== '' ? item.precioDebito : item.precio;
+}
+
+// "$50.000 contado / $60.000 débito", o un solo precio si son iguales
+function htmlPrecios(contado, debito, prefijo = '') {
+  if (debito == null || debito === contado) return `${prefijo}${formatearMoneda(contado)}`;
+  return `${prefijo}${formatearMoneda(contado)} <span class="forma-pago">contado</span>` +
+    `<span class="precio-debito">${prefijo}${formatearMoneda(debito)} <span class="forma-pago">débito</span></span>`;
+}
+
 function formatearFechaLarga(fechaISO) {
   const [y, m, d] = fechaISO.split('-').map(Number);
   return new Date(y, m - 1, d).toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -65,7 +78,7 @@ function renderLavados() {
     btn.innerHTML = `
       <span class="nombre">${l.nombre}</span>
       <span class="detalle">${l.duracionMin} min</span>
-      <span class="precio">${formatearMoneda(l.precio)}</span>
+      <span class="precio">${htmlPrecios(l.precio, precioDebitoDe(l))}</span>
     `;
     btn.addEventListener('click', () => seleccionarLavado(l.id));
     cont.appendChild(btn);
@@ -92,7 +105,7 @@ function renderExtras() {
         <input type="checkbox" data-id="${ex.id}" ${estado.extrasSeleccionados.has(ex.id) ? 'checked' : ''} />
         <span class="nombre">${ex.nombre}</span>
       </span>
-      <span class="precio">+${formatearMoneda(ex.precio)}</span>
+      <span class="precio">${htmlPrecios(ex.precio, precioDebitoDe(ex), '+')}</span>
     `;
     const checkbox = div.querySelector('input');
     checkbox.addEventListener('change', () => {
@@ -137,6 +150,7 @@ async function cargarDisponibilidad() {
 
   estado.duracionMin = data.duracionMin;
   estado.precio = data.precio;
+  estado.precioDebito = data.precioDebito;
 
   $('#paso-horario').setAttribute('aria-disabled', 'false');
   grilla.innerHTML = '';
@@ -177,8 +191,19 @@ function renderResumenTotal() {
   extras.forEach((ex) => {
     filas += `<div class="fila"><span class="k">+ ${ex.nombre}</span><span class="v">${formatearMoneda(ex.precio)}</span></div>`;
   });
-  filas += `<div class="fila total"><span class="k">Total</span><span class="v">${formatearMoneda(estado.precio)}</span></div>`;
+  filas += filasTotal(estado.precio, estado.precioDebito);
   $('#resumen-total').innerHTML = filas;
+}
+
+// Total en contado y, si es distinto, también con débito
+function filasTotal(contado, debito) {
+  if (debito == null || debito === contado) {
+    return `<div class="fila total"><span class="k">Total</span><span class="v">${formatearMoneda(contado)}</span></div>`;
+  }
+  return `
+    <div class="fila total"><span class="k">Total contado / efectivo</span><span class="v">${formatearMoneda(contado)}</span></div>
+    <div class="fila total"><span class="k">Total con débito</span><span class="v">${formatearMoneda(debito)}</span></div>
+  `;
 }
 
 $('#form-reserva').addEventListener('submit', async (e) => {
@@ -245,7 +270,7 @@ function mostrarConfirmacion(turno) {
   filas += `
     <div class="fila"><span class="k">Día</span><span class="v">${formatearFechaLarga(turno.fecha)}</span></div>
     <div class="fila"><span class="k">Hora</span><span class="v">${turno.hora}</span></div>
-    <div class="fila total"><span class="k">Total</span><span class="v">${formatearMoneda(turno.precio)}</span></div>
+    ${filasTotal(turno.precio, turno.precioDebito)}
   `;
   $('#resumen-confirmacion').innerHTML = filas;
 }

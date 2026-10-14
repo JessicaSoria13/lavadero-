@@ -113,7 +113,12 @@ a { color: inherit; }
 .opcion-extra .izq { display: flex; align-items: center; gap: 0.7rem; }
 .opcion-extra input[type="checkbox"] { width: 19px; height: 19px; accent-color: var(--tinta); }
 .opcion-extra .nombre { font-weight: 700; }
-.opcion-extra .precio { font-family: var(--f-display); font-size: 1.05rem; color: var(--cian-osc); white-space: nowrap; }
+.opcion-extra .precio { font-family: var(--f-display); font-size: 1.05rem; color: var(--cian-osc); white-space: nowrap; text-align: right; }
+
+/* Precio con débito, debajo del de contado */
+.precio .forma-pago { font-family: var(--f-texto); font-size: 0.72rem; font-weight: 400; letter-spacing: 0; color: var(--gris); }
+.precio .precio-debito { display: block; font-size: 0.8em; opacity: 0.85; }
+.opcion.seleccionada .precio .forma-pago { color: var(--cian-suave); }
 
 /* --- Formularios --- */
 label { display: block; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--tinta-suave); }

@@ -1,7 +1,7 @@
 const express = require('express');
 const { almacen, enExclusiva } = require('../db');
 const { generarCodigo, calcularDisponibilidad } = require('../utils/slots');
-const { calcularCombo } = require('../utils/combo');
+const { calcularCombo, precioDebitoDe } = require('../utils/combo');
 const { avisarNuevoTurno } = require('../utils/avisos');
 
 const router = express.Router();
@@ -42,7 +42,7 @@ router.get('/disponibilidad', async (req, res) => {
     turnosDelDia,
     ahora: new Date()
   });
-  res.json({ horarios, duracionMin: combo.duracionMin, precio: combo.precio });
+  res.json({ horarios, duracionMin: combo.duracionMin, precio: combo.precio, precioDebito: combo.precioDebito });
 });
 
 // Crear turno
@@ -88,9 +88,10 @@ router.post('/turnos', async (req, res) => {
       vehiculoNombre: vehiculo.nombre,
       lavadoId,
       lavadoNombre: combo.lavado.nombre,
-      extras: combo.extras.map((e) => ({ id: e.id, nombre: e.nombre, precio: e.precio })),
+      extras: combo.extras.map((e) => ({ id: e.id, nombre: e.nombre, precio: e.precio, precioDebito: precioDebitoDe(e) })),
       duracionMin: combo.duracionMin,
       precio: combo.precio,
+      precioDebito: combo.precioDebito,
       fecha,
       hora,
       nombre,

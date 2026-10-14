@@ -24,13 +24,16 @@
   .acciones-fila button { font-size: 0.76rem; padding: 0.35rem 0.6rem; }
   .bloque-config { margin-bottom: 2.25rem; }
   .bloque-config h3 { font-family: var(--f-display); font-weight: 700; margin-bottom: 0.75rem; }
-  .fila-item { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 0.6rem; margin-bottom: 0.5rem; align-items: center; }
-  .fila-item.extra { grid-template-columns: 1.5fr 1fr 1fr auto; }
+  .fila-item, .fila-encabezado { display: grid; grid-template-columns: 2fr 0.8fr 0.8fr 1fr 1fr 4.5rem; gap: 0.6rem; margin-bottom: 0.5rem; align-items: center; }
+  .fila-item.extra, .fila-encabezado.extra { grid-template-columns: 2fr 1fr 1fr 1fr 4.5rem; }
+  .fila-encabezado { margin-bottom: 0.2rem; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #7a8286; }
   .fila-horario { display: grid; grid-template-columns: 110px 1fr 1fr auto; gap: 0.6rem; margin-bottom: 0.5rem; align-items: center; }
   .fila-horario .dia-label { font-weight: 700; font-size: 0.9rem; }
   .fila-horario.cerrado input { opacity: 0.4; }
   @media (max-width: 640px) {
     .fila-item, .fila-item.extra, .fila-horario { grid-template-columns: 1fr; }
+    .fila-encabezado { display: none; }
+    .fila-item { padding-bottom: 0.75rem; border-bottom: 1px solid var(--borde); }
   }
   #panel-editar { border: 2px solid var(--cian); border-radius: var(--radio); padding: 1.25rem; margin-bottom: 1.5rem; background: var(--panel); }
 </style>

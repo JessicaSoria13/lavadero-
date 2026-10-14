@@ -9,7 +9,7 @@ const {
   registrarLoginExitoso
 } = require('../utils/auth');
 const { calcularDisponibilidad } = require('../utils/slots');
-const { calcularCombo } = require('../utils/combo');
+const { calcularCombo, precioDebitoDe } = require('../utils/combo');
 
 const router = express.Router();
 
@@ -103,9 +103,10 @@ router.put('/turnos/:id', async (req, res) => {
     turno.vehiculoNombre = vehiculo.nombre;
     turno.lavadoId = lavadoId;
     turno.lavadoNombre = combo.lavado.nombre;
-    turno.extras = combo.extras.map((e) => ({ id: e.id, nombre: e.nombre, precio: e.precio }));
+    turno.extras = combo.extras.map((e) => ({ id: e.id, nombre: e.nombre, precio: e.precio, precioDebito: precioDebitoDe(e) }));
     turno.duracionMin = combo.duracionMin;
     turno.precio = combo.precio;
+    turno.precioDebito = combo.precioDebito;
     turno.modificadoEn = new Date().toISOString();
 
     await almacen.actualizarTurno(turno);
@@ -141,7 +142,7 @@ router.get('/disponibilidad', async (req, res) => {
     turnosDelDia,
     ahora: new Date()
   });
-  res.json({ horarios, duracionMin: combo.duracionMin, precio: combo.precio });
+  res.json({ horarios, duracionMin: combo.duracionMin, precio: combo.precio, precioDebito: combo.precioDebito });
 });
 
 // Ver / editar configuración

@@ -20,7 +20,9 @@ function textoNuevoTurno(turno) {
     `👤 ${turno.nombre} · ${turno.telefono}`,
     `🚘 ${turno.vehiculoNombre}${turno.patente ? ' · ' + turno.patente : ''}`,
     `🧽 ${turno.lavadoNombre} (${extras})`,
-    `💲 ${formatearMoneda(turno.precio)}`,
+    turno.precioDebito != null && turno.precioDebito !== turno.precio
+      ? `💲 ${formatearMoneda(turno.precio)} contado / ${formatearMoneda(turno.precioDebito)} débito`
+      : `💲 ${formatearMoneda(turno.precio)}`,
     turno.notas ? `📝 ${turno.notas}` : null
   ]
     .filter((linea) => linea !== null)
