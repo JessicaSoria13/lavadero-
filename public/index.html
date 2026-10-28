@@ -3,116 +3,198 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Reservar turno · Lavadero</title>
+<title>Lavadero · Reservá tu turno</title>
+<meta name="description" content="Lavado, pulido y detailing de autos y motos. Reservá tu turno online." />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
 
-<header class="encabezado">
-  <div class="contenido">
-    <div class="marca">
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="#inicio">
       <svg class="logo-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect width="100" height="100" rx="16" fill="#101820"/>
+        <rect width="100" height="100" rx="16" fill="#1c2732"/>
         <path d="M22 63 C22 51 30 45 50 45 C70 45 78 51 78 63 L78 69 C78 72 75 74 72 74 L28 74 C25 74 22 72 22 69 Z" fill="#00b8c9"/>
         <path d="M34 45 C37 34 43 29 50 29 C57 29 63 34 66 45 Z" fill="#00b8c9"/>
-        <circle cx="34" cy="74" r="8" fill="#101820"/>
-        <circle cx="66" cy="74" r="8" fill="#101820"/>
+        <circle cx="34" cy="74" r="8" fill="#1c2732"/>
+        <circle cx="66" cy="74" r="8" fill="#1c2732"/>
         <circle cx="34" cy="74" r="3.2" fill="#ffcb05"/>
         <circle cx="66" cy="74" r="3.2" fill="#ffcb05"/>
         <path d="M24 16 C24 20.5 19 22 19 27 C19 30 21.2 32 24 32 C26.8 32 29 30 29 27 C29 22 24 20.5 24 16 Z" fill="#ffcb05"/>
         <path d="M14 34 C14 37 11 38 11 41 C11 43 12.5 44.3 14 44.3 C15.5 44.3 17 43 17 41 C17 38 14 37 14 34 Z" fill="#ffcb05"/>
       </svg>
-      <h1 class="rotulo" id="nombre-negocio">Lavadero</h1>
-    </div>
-    <p class="subrotulo">Reservá tu turno online</p>
+      <span class="rotulo" id="nombre-negocio">Lavadero</span>
+    </a>
     <nav>
-      <a href="/index.html">Reservar</a>
-      <a href="/admin/">Panel del lavadero</a>
+      <a class="link-seccion" href="#servicios">Servicios</a>
+      <a class="link-seccion" href="#info">Horarios</a>
+      <a class="boton boton-primario" href="#reservar">Reservar<span class="solo-ancho">&nbsp;turno</span></a>
     </nav>
   </div>
 </header>
 
-<main class="envoltura">
-
-  <!-- Paso 1: vehículo -->
-  <section class="paso" id="paso-vehiculo">
-    <h2 class="paso-num"><span class="n">01</span> ¿Qué vehículo traés?</h2>
-    <div class="grilla-opciones" id="lista-vehiculos"></div>
-  </section>
-
-  <!-- Paso 2: lavado -->
-  <section class="paso" id="paso-lavado" aria-disabled="true">
-    <h2 class="paso-num"><span class="n">02</span> Elegí el lavado</h2>
-    <div class="grilla-opciones" id="lista-lavados"></div>
-  </section>
-
-  <!-- Paso 3: extras -->
-  <section class="paso" id="paso-extras" aria-disabled="true">
-    <h2 class="paso-num"><span class="n">03</span> ¿Agregamos algo más? <span style="font-family:var(--f-texto); font-size:0.85rem; color:#6a7176;">(opcional)</span></h2>
-    <div class="lista-extras" id="lista-extras"></div>
-  </section>
-
-  <!-- Paso 4: fecha -->
-  <section class="paso" id="paso-fecha" aria-disabled="true">
-    <h2 class="paso-num"><span class="n">04</span> Elegí el día</h2>
-    <div class="campo"><input type="date" id="input-fecha" /></div>
-  </section>
-
-  <!-- Paso 5: horario -->
-  <section class="paso" id="paso-horario" aria-disabled="true">
-    <h2 class="paso-num"><span class="n">05</span> Elegí el horario</h2>
-    <div class="grilla-horarios" id="grilla-horarios"></div>
-    <p class="mensaje-vacio oculto" id="sin-horarios">No quedan horarios ese día. Probá con otra fecha.</p>
-  </section>
-
-  <!-- Paso 6: datos -->
-  <section class="paso" id="paso-datos" aria-disabled="true">
-    <h2 class="paso-num"><span class="n">06</span> Tus datos</h2>
-    <form id="form-reserva">
-      <div class="fila-2">
-        <div class="campo">
-          <label for="input-nombre">Nombre y apellido</label>
-          <input type="text" id="input-nombre" required />
-        </div>
-        <div class="campo">
-          <label for="input-telefono">Teléfono / WhatsApp</label>
-          <input type="tel" id="input-telefono" required />
-        </div>
+<!-- Portada -->
+<section class="hero" id="inicio">
+  <div class="contenedor">
+    <div>
+      <p class="hero-etiqueta" id="hero-etiqueta">Autos y motos</p>
+      <h1 id="hero-titulo">Lavadero</h1>
+      <p class="hero-texto" id="hero-texto">Lavado, pulido y detailing para autos y motos. Elegí el servicio, el día y el horario, y reservá tu turno en un minuto.</p>
+      <div class="hero-acciones">
+        <a class="boton boton-primario" href="#reservar">Reservar turno</a>
+        <a class="boton boton-whatsapp oculto" id="hero-whatsapp" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg>
+          Escribinos
+        </a>
       </div>
-      <div class="campo">
-        <label for="input-patente">Patente (opcional)</label>
-        <input type="text" id="input-patente" placeholder="Ej: AB123CD" />
-      </div>
-      <div class="campo">
-        <label for="input-notas">Notas (opcional)</label>
-        <textarea id="input-notas" rows="2"></textarea>
-      </div>
-
-      <div class="resumen-turno" id="resumen-total"></div>
-
-      <button type="submit" class="boton boton-primario boton-ancho" id="btn-confirmar">
-        Confirmar reserva
-      </button>
-      <p class="error-msg oculto" id="error-reserva"></p>
-    </form>
-  </section>
-
-  <!-- Confirmación -->
-  <section class="paso oculto" id="paso-confirmacion">
-    <h2 class="paso-num">¡Turno reservado!</h2>
-    <div class="tarjeta-confirmacion">
-      <div class="resumen-turno" id="resumen-confirmacion"></div>
-      <div class="aviso">
-        Tu turno quedó como <strong>pendiente</strong>. Nos vamos a comunicar con vos para confirmarlo, o podés contactarnos si tenés alguna duda.
-      </div>
-      <div class="acciones">
-        <button class="boton boton-agua" id="btn-nueva-reserva">Hacer otra reserva</button>
+      <div class="hero-datos">
+        <span id="hero-estado"><i class="punto"></i> Cargando horarios…</span>
+        <span id="hero-direccion" class="oculto"></span>
       </div>
     </div>
-  </section>
 
-</main>
+    <aside class="hero-tarjeta" aria-label="Servicios destacados">
+      <h2>Servicios destacados</h2>
+      <ul id="hero-servicios"></ul>
+      <p class="nota">Precios pagando en efectivo. Con débito tiene recargo.</p>
+    </aside>
+  </div>
+</section>
+
+<!-- Servicios -->
+<section class="seccion" id="servicios">
+  <div class="contenedor">
+    <div class="seccion-titulo">
+      <p class="eyebrow">Lo que hacemos</p>
+      <h2>Servicios y precios</h2>
+      <p>Tocá un servicio para reservarlo directamente. La duración es aproximada.</p>
+    </div>
+    <div id="lista-servicios"></div>
+    <div class="extras-portada oculto" id="extras-portada">
+      <h3>Adicionales</h3>
+      <div class="lista-chips" id="lista-extras-portada"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Horarios y contacto -->
+<section class="seccion" id="info">
+  <div class="contenedor">
+    <div class="grilla-info">
+      <div class="tarjeta">
+        <h3>Horarios</h3>
+        <table class="tabla-horarios"><tbody id="tabla-horarios"></tbody></table>
+      </div>
+      <div class="tarjeta">
+        <h3>Dónde estamos</h3>
+        <ul class="lista-contacto" id="lista-contacto"></ul>
+        <div class="acciones" id="acciones-contacto"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Reserva -->
+<section class="seccion seccion-reserva" id="reservar">
+  <div class="contenedor">
+    <div class="reserva">
+      <div class="seccion-titulo">
+        <p class="eyebrow">Turnos online</p>
+        <h2>Reservá tu turno</h2>
+        <p>Completá los pasos. Los horarios que ves son los que están libres.</p>
+      </div>
+
+      <!-- Paso 1: vehículo -->
+      <section class="paso" id="paso-vehiculo">
+        <h3 class="paso-num"><span class="n">1</span> ¿Qué vehículo traés?</h3>
+        <div class="grilla-opciones" id="lista-vehiculos"></div>
+      </section>
+
+      <!-- Paso 2: lavado -->
+      <section class="paso" id="paso-lavado" aria-disabled="true">
+        <h3 class="paso-num"><span class="n">2</span> Elegí el servicio</h3>
+        <div class="grilla-opciones" id="lista-lavados"></div>
+      </section>
+
+      <!-- Paso 3: extras -->
+      <section class="paso" id="paso-extras" aria-disabled="true">
+        <h3 class="paso-num"><span class="n">3</span> ¿Agregamos algo más? <span class="opcional">(opcional)</span></h3>
+        <div class="lista-extras" id="lista-extras"></div>
+      </section>
+
+      <!-- Paso 4: fecha -->
+      <section class="paso" id="paso-fecha" aria-disabled="true">
+        <h3 class="paso-num"><span class="n">4</span> Elegí el día</h3>
+        <div class="campo"><input type="date" id="input-fecha" aria-label="Día del turno" /></div>
+      </section>
+
+      <!-- Paso 5: horario -->
+      <section class="paso" id="paso-horario" aria-disabled="true">
+        <h3 class="paso-num"><span class="n">5</span> Elegí el horario</h3>
+        <div class="grilla-horarios" id="grilla-horarios"></div>
+        <p class="mensaje-vacio oculto" id="sin-horarios">No quedan horarios ese día. Probá con otra fecha.</p>
+      </section>
+
+      <!-- Paso 6: datos -->
+      <section class="paso" id="paso-datos" aria-disabled="true">
+        <h3 class="paso-num"><span class="n">6</span> Tus datos</h3>
+        <form id="form-reserva">
+          <div class="fila-2">
+            <div class="campo">
+              <label for="input-nombre">Nombre y apellido</label>
+              <input type="text" id="input-nombre" autocomplete="name" required />
+            </div>
+            <div class="campo">
+              <label for="input-telefono">Teléfono / WhatsApp</label>
+              <input type="tel" id="input-telefono" autocomplete="tel" required />
+            </div>
+          </div>
+          <div class="campo">
+            <label for="input-patente">Patente (opcional)</label>
+            <input type="text" id="input-patente" placeholder="Ej: AB123CD" />
+          </div>
+          <div class="campo">
+            <label for="input-notas">Notas (opcional)</label>
+            <textarea id="input-notas" rows="2"></textarea>
+          </div>
+
+          <div class="resumen-turno" id="resumen-total"></div>
+
+          <button type="submit" class="boton boton-primario boton-ancho" id="btn-confirmar">
+            Confirmar reserva
+          </button>
+          <p class="error-msg oculto" id="error-reserva"></p>
+        </form>
+      </section>
+
+      <!-- Confirmación -->
+      <section class="paso oculto" id="paso-confirmacion">
+        <h3 class="paso-num">¡Turno reservado!</h3>
+        <div class="tarjeta-confirmacion">
+          <div class="resumen-turno" id="resumen-confirmacion"></div>
+          <div class="aviso">
+            Tu turno quedó como <strong>pendiente</strong>. Nos vamos a comunicar con vos para confirmarlo, o podés escribirnos si tenés alguna duda.
+          </div>
+          <div class="acciones">
+            <button class="boton boton-agua" id="btn-nueva-reserva">Hacer otra reserva</button>
+            <a class="boton boton-whatsapp oculto" id="confirmacion-whatsapp" href="#" target="_blank" rel="noopener">Escribinos por WhatsApp</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+
+<footer class="pie">
+  <div class="contenedor">
+    <div>
+      <strong id="pie-nombre">Lavadero</strong>
+      <div id="pie-datos"></div>
+    </div>
+    <a href="/admin/">Acceso del lavadero</a>
+  </div>
+</footer>
 
 <script src="/js/main.js"></script>
 </body>

@@ -4,61 +4,30 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Panel del lavadero</title>
+<meta name="robots" content="noindex" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="stylesheet" href="/css/style.css" />
-<style>
-  .envoltura-admin { max-width: 900px; margin: 0 auto; padding: 0 1.25rem 4rem; }
-  .tabs { display: flex; gap: 0.5rem; margin: 1.75rem 0 1.25rem; border-bottom: 1px solid var(--borde); }
-  .tab-btn {
-    background: none; border: none; padding: 0.7rem 0.2rem; margin-right: 1.25rem;
-    font-family: var(--f-texto); font-weight: 700; font-size: 0.95rem; color: #8a9296;
-    cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
-  }
-  .tab-btn.activo { color: var(--tinta); border-color: var(--amarillo); }
-  .fila-filtro { display: flex; gap: 1rem; align-items: end; margin-bottom: 1.25rem; flex-wrap: wrap; }
-  .fila-filtro .campo { margin-bottom: 0; min-width: 170px; }
-  table.turnos { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  table.turnos th, table.turnos td { text-align: left; padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--borde); vertical-align: top; }
-  table.turnos th { font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.03em; color: #7a8286; }
-  .acciones-fila { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-  .acciones-fila button { font-size: 0.76rem; padding: 0.35rem 0.6rem; }
-  .bloque-config { margin-bottom: 2.25rem; }
-  .bloque-config h3 { font-family: var(--f-display); font-weight: 700; margin-bottom: 0.75rem; }
-  .fila-item, .fila-encabezado { display: grid; grid-template-columns: 2fr 0.8fr 0.8fr 1fr 1fr 4.5rem; gap: 0.6rem; margin-bottom: 0.5rem; align-items: center; }
-  .fila-item.extra, .fila-encabezado.extra { grid-template-columns: 2fr 1fr 1fr 1fr 4.5rem; }
-  .fila-encabezado { margin-bottom: 0.2rem; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #7a8286; }
-  .fila-horario { display: grid; grid-template-columns: 110px 1fr 1fr auto; gap: 0.6rem; margin-bottom: 0.5rem; align-items: center; }
-  .fila-horario .dia-label { font-weight: 700; font-size: 0.9rem; }
-  .fila-horario.cerrado input { opacity: 0.4; }
-  @media (max-width: 640px) {
-    .fila-item, .fila-item.extra, .fila-horario { grid-template-columns: 1fr; }
-    .fila-encabezado { display: none; }
-    .fila-item { padding-bottom: 0.75rem; border-bottom: 1px solid var(--borde); }
-  }
-  #panel-editar { border: 2px solid var(--cian); border-radius: var(--radio); padding: 1.25rem; margin-bottom: 1.5rem; background: var(--panel); }
-</style>
 </head>
 <body>
 
-<header class="encabezado">
-  <div class="contenido">
-    <div class="marca">
+<header class="barra">
+  <div class="contenedor">
+    <a class="marca" href="/admin/">
       <svg class="logo-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect width="100" height="100" rx="16" fill="#101820"/>
+        <rect width="100" height="100" rx="16" fill="#1c2732"/>
         <path d="M22 63 C22 51 30 45 50 45 C70 45 78 51 78 63 L78 69 C78 72 75 74 72 74 L28 74 C25 74 22 72 22 69 Z" fill="#00b8c9"/>
         <path d="M34 45 C37 34 43 29 50 29 C57 29 63 34 66 45 Z" fill="#00b8c9"/>
-        <circle cx="34" cy="74" r="8" fill="#101820"/>
-        <circle cx="66" cy="74" r="8" fill="#101820"/>
+        <circle cx="34" cy="74" r="8" fill="#1c2732"/>
+        <circle cx="66" cy="74" r="8" fill="#1c2732"/>
         <circle cx="34" cy="74" r="3.2" fill="#ffcb05"/>
         <circle cx="66" cy="74" r="3.2" fill="#ffcb05"/>
         <path d="M24 16 C24 20.5 19 22 19 27 C19 30 21.2 32 24 32 C26.8 32 29 30 29 27 C29 22 24 20.5 24 16 Z" fill="#ffcb05"/>
         <path d="M14 34 C14 37 11 38 11 41 C11 43 12.5 44.3 14 44.3 C15.5 44.3 17 43 17 41 C17 38 14 37 14 34 Z" fill="#ffcb05"/>
       </svg>
-      <h1 class="rotulo">Panel del lavadero</h1>
-    </div>
-    <p class="subrotulo" id="nombre-negocio-admin">Gestión de turnos</p>
+      <span class="rotulo">Panel</span>
+    </a>
     <nav>
-      <a href="/index.html">Sitio de reservas</a>
+      <a href="/" target="_blank" rel="noopener">Ver sitio</a>
       <a href="#" id="btn-logout" class="oculto">Cerrar sesión</a>
     </nav>
   </div>
@@ -67,8 +36,9 @@
 <main class="envoltura-admin">
 
   <!-- Login -->
-  <section class="paso" id="paso-login">
-    <h2 class="paso-num">Iniciar sesión</h2>
+  <section class="login-caja tarjeta" id="paso-login">
+    <h1>Panel del lavadero</h1>
+    <p>Ingresá con la contraseña del lavadero.</p>
     <form id="form-login">
       <div class="campo">
         <label for="input-password">Contraseña</label>
@@ -81,13 +51,21 @@
 
   <!-- App -->
   <div class="oculto" id="app-admin">
-    <div class="tabs">
-      <button class="tab-btn activo" data-tab="turnos">Turnos</button>
-      <button class="tab-btn" data-tab="config">Configuración</button>
+    <div class="admin-encabezado">
+      <div>
+        <h1 id="nombre-negocio-admin">Lavadero</h1>
+        <p>Gestión de turnos</p>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab-btn activo" data-tab="turnos">Turnos</button>
+        <button class="tab-btn" data-tab="config">Configuración</button>
+      </div>
     </div>
 
     <!-- Tab turnos -->
     <section id="tab-turnos">
+
+      <div class="resumen-admin" id="resumen-admin"></div>
 
       <div id="panel-editar" class="oculto"></div>
 
@@ -115,52 +93,57 @@
         </div>
       </div>
 
-      <div style="overflow-x:auto;">
+      <div class="tabla-envoltura">
         <table class="turnos">
           <thead>
             <tr>
-              <th>Día / Hora</th><th>Cliente</th><th>Vehículo / Lavado</th><th>Extras</th><th>Total</th><th>Estado</th><th>Acciones</th>
+              <th>Día / Hora</th><th>Cliente</th><th>Servicio</th><th>Extras</th><th>Total</th><th>Estado</th><th>Acciones</th>
             </tr>
           </thead>
           <tbody id="tabla-turnos-body"></tbody>
         </table>
+        <p class="mensaje-vacio oculto" id="sin-turnos">No hay turnos para este filtro.</p>
       </div>
-      <p class="mensaje-vacio oculto" id="sin-turnos">No hay turnos para este filtro.</p>
     </section>
 
     <!-- Tab configuración -->
     <section id="tab-config" class="oculto">
 
-      <div class="bloque-config">
+      <div class="bloque-config tarjeta">
         <h3>Datos del negocio</h3>
+        <p class="ayuda">Se muestran en la portada del sitio. El teléfono se usa también para el botón de WhatsApp.</p>
         <div class="fila-2">
-          <div class="campo"><label>Nombre</label><input type="text" id="cfg-nombre" /></div>
-          <div class="campo"><label>Teléfono</label><input type="text" id="cfg-telefono" /></div>
+          <div class="campo"><label for="cfg-nombre">Nombre</label><input type="text" id="cfg-nombre" /></div>
+          <div class="campo"><label for="cfg-telefono">Teléfono / WhatsApp</label><input type="text" id="cfg-telefono" placeholder="Ej: 2475470012" /></div>
         </div>
-        <div class="campo"><label>Dirección</label><input type="text" id="cfg-direccion" /></div>
+        <div class="campo"><label for="cfg-direccion">Dirección</label><input type="text" id="cfg-direccion" /></div>
+        <div class="campo"><label for="cfg-eslogan">Frase de portada (opcional)</label><textarea id="cfg-eslogan" rows="2" placeholder="Ej: Lavado, pulido y detailing para autos y motos."></textarea></div>
       </div>
 
-      <div class="bloque-config">
-        <h3>Lavados por vehículo</h3>
-        <p style="font-size:0.85rem;color:#6a7176;margin-top:-0.5rem;">El "vehículo" de cada lavado tiene que ser exactamente "auto" o "moto".</p>
+      <div class="bloque-config tarjeta">
+        <h3>Servicios por vehículo</h3>
+        <p class="ayuda">El "vehículo" tiene que ser exactamente "auto" o "moto". Si dejás vacío el precio con débito, se cobra lo mismo que en contado.</p>
         <div id="lista-cfg-lavados"></div>
-        <button class="boton boton-fantasma" id="btn-agregar-lavado" type="button">+ Agregar lavado</button>
+        <button class="boton boton-fantasma" id="btn-agregar-lavado" type="button">+ Agregar servicio</button>
       </div>
 
-      <div class="bloque-config">
+      <div class="bloque-config tarjeta">
         <h3>Extras</h3>
+        <p class="ayuda">Adicionales que el cliente puede sumar a cualquier servicio.</p>
         <div id="lista-cfg-extras"></div>
         <button class="boton boton-fantasma" id="btn-agregar-extra" type="button">+ Agregar extra</button>
       </div>
 
-      <div class="bloque-config">
+      <div class="bloque-config tarjeta">
         <h3>Horarios de atención</h3>
         <div id="lista-cfg-horarios"></div>
       </div>
 
-      <button class="boton boton-primario" id="btn-guardar-config">Guardar configuración</button>
-      <p class="exito-msg oculto" id="exito-config">Guardado correctamente.</p>
-      <p class="error-msg oculto" id="error-config"></p>
+      <div class="barra-guardar">
+        <button class="boton boton-primario" id="btn-guardar-config">Guardar configuración</button>
+        <p class="exito-msg oculto" id="exito-config">Guardado correctamente.</p>
+        <p class="error-msg oculto" id="error-config"></p>
+      </div>
     </section>
   </div>
 

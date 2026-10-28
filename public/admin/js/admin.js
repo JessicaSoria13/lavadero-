@@ -122,9 +122,29 @@ async function cargarTurnos() {
   if (estado.vista === 'proximos') params.set('desde', hoyAR());
   if (estado.vista === 'dia') params.set('fecha', $('#filtro-fecha').value);
   if ($('#filtro-estado').value) params.set('estado', $('#filtro-estado').value);
-  const res = await apiAdmin(`/turnos?${params}`);
+  const [res, resProximos] = await Promise.all([
+    apiAdmin(`/turnos?${params}`),
+    apiAdmin(`/turnos?desde=${hoyAR()}`)
+  ]);
   const data = await res.json();
   renderTablaTurnos(data.turnos || []);
+  renderResumenAdmin((await resProximos.json()).turnos || []);
+}
+
+// Tarjetas de resumen arriba de la lista (no dependen del filtro elegido)
+function renderResumenAdmin(proximos) {
+  const hoy = hoyAR();
+  const activos = proximos.filter((t) => t.estado !== 'cancelado');
+  const pendientes = activos.filter((t) => t.estado === 'pendiente').length;
+  const deHoy = activos.filter((t) => t.fecha === hoy);
+  const cobrarHoy = deHoy.reduce((acc, t) => acc + (t.precio || 0), 0);
+
+  $('#resumen-admin').innerHTML = `
+    <div class="dato ${pendientes ? 'destacado' : ''}"><div class="k">Pendientes de confirmar</div><div class="v">${pendientes}</div></div>
+    <div class="dato"><div class="k">Turnos hoy</div><div class="v">${deHoy.length}</div></div>
+    <div class="dato"><div class="k">Próximos turnos</div><div class="v">${activos.length}</div></div>
+    <div class="dato"><div class="k">Hoy en efectivo</div><div class="v">${formatearMoneda(cobrarHoy)}</div></div>
+  `;
 }
 
 function renderTablaTurnos(turnos) {
@@ -140,19 +160,20 @@ function renderTablaTurnos(turnos) {
 
   turnos.forEach((t) => {
     const tr = document.createElement('tr');
+    if (t.estado === 'pendiente') tr.className = 'es-pendiente';
     const fechaCorta = estado.vista !== 'dia'
-      ? `<strong>${t.fecha === hoyAR() ? 'Hoy' : esc(formatearFechaCorta(t.fecha))}</strong><br/>`
+      ? `<strong>${t.fecha === hoyAR() ? 'Hoy' : esc(formatearFechaCorta(t.fecha))}</strong> `
       : '';
     const extrasTxt = t.extras.length ? t.extras.map((e) => esc(e.nombre)).join(', ') : '—';
     const id = esc(t.id);
     tr.innerHTML = `
-      <td>${fechaCorta}${esc(t.hora)}</td>
-      <td>${esc(t.nombre)}<br/><span style="color:#8a9296;font-size:0.8rem;">${esc(t.telefono)}${t.patente ? ' · ' + esc(t.patente) : ''}</span>${t.notas ? `<br/><span style="font-size:0.8rem;">📝 ${esc(t.notas)}</span>` : ''}</td>
-      <td>${esc(t.vehiculoNombre)} · ${esc(t.lavadoNombre)}</td>
-      <td>${extrasTxt}</td>
-      <td>${formatearMoneda(t.precio)}${t.precioDebito != null && t.precioDebito !== t.precio ? `<br/><span style="color:#8a9296;font-size:0.8rem;">${formatearMoneda(t.precioDebito)} débito</span>` : ''}</td>
-      <td><span class="chip-estado ${esc(t.estado)}">${esc(t.estado)}</span></td>
-      <td>
+      <td data-label="Día / Hora">${fechaCorta}${esc(t.hora)}</td>
+      <td data-label="Cliente"><strong>${esc(t.nombre)}</strong><br/><span class="sub">${esc(t.telefono)}${t.patente ? ' · ' + esc(t.patente) : ''}</span>${t.notas ? `<br/><span style="font-size:0.8rem;">📝 ${esc(t.notas)}</span>` : ''}</td>
+      <td data-label="Servicio">${esc(t.vehiculoNombre)} · ${esc(t.lavadoNombre)}</td>
+      <td data-label="Extras">${extrasTxt}</td>
+      <td data-label="Total">${formatearMoneda(t.precio)}${t.precioDebito != null && t.precioDebito !== t.precio ? `<br/><span class="sub">${formatearMoneda(t.precioDebito)} débito</span>` : ''}</td>
+      <td data-label="Estado"><span class="chip-estado ${esc(t.estado)}">${esc(t.estado)}</span></td>
+      <td class="celda-acciones">
         <div class="acciones-fila">
           ${t.estado !== 'confirmado' ? `<button class="boton boton-agua" data-accion="confirmar" data-id="${id}">Confirmar</button>` : ''}
           <button class="boton boton-fantasma" data-accion="editar" data-id="${id}">Reprogramar</button>
@@ -363,6 +384,7 @@ async function cargarConfigTab() {
   $('#cfg-nombre').value = cfg.negocio.nombre || '';
   $('#cfg-telefono').value = cfg.negocio.telefono || '';
   $('#cfg-direccion').value = cfg.negocio.direccion || '';
+  $('#cfg-eslogan').value = cfg.negocio.eslogan || '';
 
   renderLavadosConfig(cfg.lavados);
   renderExtrasConfig(cfg.extras);
@@ -529,7 +551,8 @@ $('#btn-guardar-config').addEventListener('click', async () => {
     negocio: {
       nombre: $('#cfg-nombre').value.trim(),
       telefono: $('#cfg-telefono').value.trim(),
-      direccion: $('#cfg-direccion').value.trim()
+      direccion: $('#cfg-direccion').value.trim(),
+      eslogan: $('#cfg-eslogan').value.trim()
     },
     lavados: leerLavadosDesdeUI(),
     extras: leerExtrasDesdeUI(),
