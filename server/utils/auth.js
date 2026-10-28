@@ -27,32 +27,23 @@ function requireAdmin(req, res, next) {
   }
 }
 
-// Límite de intentos de login por IP, para que no puedan adivinar la contraseña probando muchas
+// Límite de intentos de login por IP, para que no puedan adivinar la contraseña probando muchas.
+// Los intentos se guardan en el almacén (base de datos en producción).
+const { almacen } = require('../db');
+
 const MAX_INTENTOS = 10;
 const VENTANA_MS = 15 * 60 * 1000;
-const intentosFallidos = new Map(); // ip -> { cantidad, desde }
 
 function loginBloqueado(ip) {
-  const registro = intentosFallidos.get(ip);
-  if (!registro) return false;
-  if (Date.now() - registro.desde > VENTANA_MS) {
-    intentosFallidos.delete(ip);
-    return false;
-  }
-  return registro.cantidad >= MAX_INTENTOS;
+  return almacen.loginBloqueado(ip, MAX_INTENTOS, VENTANA_MS);
 }
 
 function registrarLoginFallido(ip) {
-  const registro = intentosFallidos.get(ip);
-  if (!registro || Date.now() - registro.desde > VENTANA_MS) {
-    intentosFallidos.set(ip, { cantidad: 1, desde: Date.now() });
-  } else {
-    registro.cantidad++;
-  }
+  return almacen.registrarLoginFallido(ip, VENTANA_MS);
 }
 
 function registrarLoginExitoso(ip) {
-  intentosFallidos.delete(ip);
+  return almacen.registrarLoginExitoso(ip);
 }
 
 module.exports = { firmarToken, requireAdmin, loginBloqueado, registrarLoginFallido, registrarLoginExitoso };

@@ -15,7 +15,7 @@ const router = express.Router();
 
 // Login del administrador del lavadero
 router.post('/login', async (req, res) => {
-  if (loginBloqueado(req.ip)) {
+  if (await loginBloqueado(req.ip)) {
     return res.status(429).json({ error: 'Demasiados intentos. Esperá 15 minutos y probá de nuevo.' });
   }
 
@@ -30,11 +30,11 @@ router.post('/login', async (req, res) => {
 
   const ok = await bcrypt.compare(String(password), hash);
   if (!ok) {
-    registrarLoginFallido(req.ip);
+    await registrarLoginFallido(req.ip);
     return res.status(401).json({ error: 'Contraseña incorrecta' });
   }
 
-  registrarLoginExitoso(req.ip);
+  await registrarLoginExitoso(req.ip);
   res.json({ token: firmarToken() });
 });
 

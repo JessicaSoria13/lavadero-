@@ -66,26 +66,27 @@ Si en algún momento querés agregar otro tipo de vehículo (por ejemplo "camion
 
 En el panel, la vista **"Próximos turnos"** (la que se abre por defecto) muestra todos los turnos de hoy en adelante. También podés elegir **"Un día"** o **"Todos (incluye pasados)"**.
 
-## Publicar el sitio online (gratis: Render + Neon)
+## Publicar el sitio online (gratis: Vercel + Neon)
 
 **Base de datos (Neon, gratis y permanente):**
 1. Creá una cuenta en [neon.com](https://neon.com) y un proyecto nuevo (región: São Paulo o la más cercana).
 2. Copiá el **connection string** (empieza con `postgresql://` y termina con `?sslmode=require`).
 
-**Sitio (Render, gratis):**
-1. Creá una cuenta en [render.com](https://render.com) entrando con GitHub.
-2. **New → Web Service** → elegí este repositorio.
-3. Build command: `npm install` · Start command: `npm start` · Plan: **Free**.
-4. En **Environment** agregá:
-   - `DATABASE_URL` = el connection string de Neon
+**Sitio (Vercel):**
+1. Creá una cuenta en [vercel.com](https://vercel.com) entrando con GitHub.
+2. **Add New → Project** → importá este repositorio. Vercel lee la configuración de `vercel.json`, así que no hace falta tocar los ajustes de build.
+3. En **Environment Variables** agregá:
+   - `DATABASE_URL` = el connection string de Neon (**obligatoria**: en Vercel no se puede guardar en archivos)
    - `ADMIN_PASSWORD_HASH` (generado con `scripts/generar-password.js`)
    - `JWT_SECRET` (una cadena larga cualquiera, por ejemplo 40 letras y números al azar)
    - Opcional: `WHATSAPP_TELEFONO` y `WHATSAPP_APIKEY`
-5. En los logs tiene que decir `Datos guardados en: PostgreSQL`.
+4. **Deploy**.
 
-**Que no se "duerma":** en el plan gratis, Render apaga el sitio después de 15 minutos sin visitas, y la próxima visita tarda alrededor de 1 minuto en cargar. Para evitarlo, creá un monitor gratis en [UptimeRobot](https://uptimerobot.com) o [cron-job.org](https://cron-job.org) que visite `https://tu-sitio.onrender.com/api/salud` cada 10 minutos. Esa dirección no usa la base de datos, así que no gasta las horas gratis de Neon.
+Cómo funciona en Vercel: las páginas de `public/` se sirven directo y todo lo que empieza con `/api/` lo atiende `api/index.js`, que usa la misma app que `npm start`. Vercel puede correr varias copias de la app a la vez, así que el bloqueo que evita reservas en el mismo horario y el límite de intentos de login se guardan en PostgreSQL.
 
-Cada vez que subís cambios a GitHub, Render vuelve a publicar solo. Los turnos no se pierden porque están en Neon.
+Cada vez que subís cambios a GitHub, Vercel vuelve a publicar solo. Los turnos no se pierden porque están en Neon.
+
+⚠️ El plan gratis de Vercel (Hobby) es solo para uso **no comercial**. Para un lavadero que lo use de verdad, hace falta el plan Pro u otro hosting (el proyecto también funciona en cualquier servidor con `npm start`, por ejemplo Render).
 
 La hora del servidor se fuerza a la de Argentina. Si algún día lo usás en otro país, configurá `ZONA_HORARIA` (por ejemplo `America/Montevideo`).
 
@@ -93,7 +94,7 @@ La hora del servidor se fuerza a la de Argentina. Si algún día lo usás en otr
 
 - **Bajar un respaldo** del sitio publicado (config + todos los turnos) a tu compu:
   ```bash
-  node scripts/descargar-respaldo.js https://tu-sitio.up.railway.app "tuContraseña"
+  node scripts/descargar-respaldo.js https://tu-sitio.vercel.app "tuContraseña"
   ```
   Se guarda en `server/data/respaldo-AAAA-MM-DD.json`. Esa carpeta no se sube a GitHub porque tiene datos de clientes.
 - **Cargar un respaldo** en PostgreSQL (con el connection string de Neon):
@@ -116,7 +117,7 @@ Usa [CallMeBot](https://www.callmebot.com/blog/free-api-whatsapp-messages/), que
    ```
    El número va con **+54 9**, la característica sin el 0 y el número sin el 15.
 5. Corré `node scripts/probar-whatsapp.js`: te tiene que llegar un mensaje de prueba.
-6. Cargá las dos variables también en Railway.
+6. Cargá las dos variables también en Vercel.
 
 Si el aviso falla, la reserva se guarda igual (el error queda en los logs).
 
@@ -124,8 +125,11 @@ Si el aviso falla, la reserva se guarda igual (el error queda en los logs).
 
 ```
 lavadero-turnos/
+├── api/index.js               # entrada para Vercel (usa server/app.js)
+├── vercel.json
 ├── server/
-│   ├── index.js
+│   ├── app.js                 # la app Express (rutas, archivos, errores)
+│   ├── index.js               # arranque con servidor propio (npm start)
 │   ├── db.js                  # guardado de config y turnos (PostgreSQL o archivo local)
 │   ├── routes/
 │   │   ├── public.js          # config, disponibilidad, crear turno

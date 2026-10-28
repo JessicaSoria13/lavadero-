@@ -36,7 +36,7 @@ async function enviarWhatsApp(texto) {
 
   const params = new URLSearchParams({ phone: telefono, text: texto, apikey });
   const res = await fetch(`https://api.callmebot.com/whatsapp.php?${params}`, {
-    signal: AbortSignal.timeout(15000)
+    signal: AbortSignal.timeout(8000)
   });
   const cuerpo = await res.text();
   if (!res.ok || /error/i.test(cuerpo)) {
@@ -45,9 +45,11 @@ async function enviarWhatsApp(texto) {
   return true;
 }
 
+// Devuelve una promesa que nunca falla: hay que esperarla (await) antes de responder,
+// porque en Vercel la función se congela apenas manda la respuesta y el aviso se perdería.
+// Si el aviso falla, la reserva sigue igual: solo queda registrado en los logs.
 function avisarNuevoTurno(turno) {
-  // No frena la reserva si el aviso falla: solo lo deja registrado en los logs
-  enviarWhatsApp(textoNuevoTurno(turno)).catch((err) => {
+  return enviarWhatsApp(textoNuevoTurno(turno)).catch((err) => {
     console.error('No se pudo enviar el aviso por WhatsApp:', err.message);
   });
 }

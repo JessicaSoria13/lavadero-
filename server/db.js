@@ -67,6 +67,10 @@ function crearAlmacenArchivo() {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
   }
 
+  // Con un solo servidor alcanza con ordenar las operaciones en memoria
+  let cola = Promise.resolve();
+  const intentosFallidos = new Map(); // ip -> { cantidad, desde }
+
   return {
     nombre: 'archivo local (server/data/db.json)',
     async init() {
@@ -106,6 +110,27 @@ function crearAlmacenArchivo() {
       escribir(db);
       return true;
     },
+    enExclusiva(fn) {
+      const resultado = cola.then(fn);
+      cola = resultado.catch(() => {});
+      return resultado;
+    },
+    async loginBloqueado(ip, maxIntentos, ventanaMs) {
+      const registro = intentosFallidos.get(ip);
+      if (!registro || Date.now() - registro.desde > ventanaMs) return false;
+      return registro.cantidad >= maxIntentos;
+    },
+    async registrarLoginFallido(ip, ventanaMs) {
+      const registro = intentosFallidos.get(ip);
+      if (!registro || Date.now() - registro.desde > ventanaMs) {
+        intentosFallidos.set(ip, { cantidad: 1, desde: Date.now() });
+      } else {
+        registro.cantidad++;
+      }
+    },
+    async registrarLoginExitoso(ip) {
+      intentosFallidos.delete(ip);
+    },
     async cerrar() {}
   };
 }
@@ -124,13 +149,23 @@ const ESQUEMA = `
     datos JSONB NOT NULL
   );
   CREATE INDEX IF NOT EXISTS turnos_fecha_idx ON turnos (fecha);
+  CREATE TABLE IF NOT EXISTS intentos_login (
+    ip TEXT PRIMARY KEY,
+    cantidad INT NOT NULL,
+    desde TIMESTAMPTZ NOT NULL
+  );
 `;
+
+// Número fijo para el bloqueo de PostgreSQL que ordena las reservas de a una
+const LLAVE_BLOQUEO_TURNOS = 734512;
 
 function crearAlmacenPostgres(url) {
   const { Pool } = require('pg');
   const pool = new Pool({
     connectionString: url,
-    ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : undefined
+    ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : undefined,
+    // En Vercel cada copia de la app atiende de a una visita: no hacen falta muchas conexiones
+    max: process.env.VERCEL ? 2 : 10
   });
 
   async function guardarTurno(turno, { soloSiNoExiste = false } = {}) {
@@ -192,20 +227,61 @@ function crearAlmacenPostgres(url) {
     async importarTurno(turno) {
       await guardarTurno(turno, { soloSiNoExiste: true });
     },
+
+    // Ejecuta fn de a una aunque haya varias copias de la app corriendo (Vercel):
+    // el bloqueo lo lleva PostgreSQL y se libera solo al terminar la transacción.
+    async enExclusiva(fn) {
+      const cliente = await pool.connect();
+      try {
+        await cliente.query('BEGIN');
+        await cliente.query('SELECT pg_advisory_xact_lock($1)', [LLAVE_BLOQUEO_TURNOS]);
+        const resultado = await fn();
+        await cliente.query('COMMIT');
+        return resultado;
+      } catch (err) {
+        await cliente.query('ROLLBACK').catch(() => {});
+        throw err;
+      } finally {
+        cliente.release();
+      }
+    },
+
+    // Intentos fallidos de login por IP (guardados en la base para que valgan en todas las copias)
+    async loginBloqueado(ip, maxIntentos, ventanaMs) {
+      const { rows } = await pool.query(
+        'SELECT cantidad FROM intentos_login WHERE ip = $1 AND desde > now() - ($2 || \' milliseconds\')::interval',
+        [ip, ventanaMs]
+      );
+      return rows.length > 0 && rows[0].cantidad >= maxIntentos;
+    },
+    async registrarLoginFallido(ip, ventanaMs) {
+      await pool.query(
+        `INSERT INTO intentos_login (ip, cantidad, desde) VALUES ($1, 1, now())
+         ON CONFLICT (ip) DO UPDATE SET
+           cantidad = CASE WHEN intentos_login.desde > now() - ($2 || ' milliseconds')::interval THEN intentos_login.cantidad + 1 ELSE 1 END,
+           desde = CASE WHEN intentos_login.desde > now() - ($2 || ' milliseconds')::interval THEN intentos_login.desde ELSE now() END`,
+        [ip, ventanaMs]
+      );
+    },
+    async registrarLoginExitoso(ip) {
+      await pool.query('DELETE FROM intentos_login WHERE ip = $1', [ip]);
+    },
+
     async cerrar() {
       await pool.end();
     }
   };
 }
 
+if (process.env.VERCEL && !process.env.DATABASE_URL) {
+  // En Vercel no se puede escribir en archivos: sin base de datos se perderían los turnos
+  throw new Error('Falta la variable DATABASE_URL (en Vercel es obligatoria).');
+}
+
 const almacen = process.env.DATABASE_URL ? crearAlmacenPostgres(process.env.DATABASE_URL) : crearAlmacenArchivo();
 
-// Ejecuta las operaciones de a una (evita que dos reservas simultáneas tomen el mismo horario)
-let cola = Promise.resolve();
 function enExclusiva(fn) {
-  const resultado = cola.then(fn);
-  cola = resultado.catch(() => {});
-  return resultado;
+  return almacen.enExclusiva(fn);
 }
 
 module.exports = { almacen, enExclusiva, DEFAULT_CONFIG, crearAlmacenPostgres };

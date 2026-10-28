@@ -106,7 +106,7 @@ router.post('/turnos', async (req, res) => {
     return { status: 201, body: { turno, negocio: config.negocio } };
   });
 
-  if (resultado.status === 201) avisarNuevoTurno(resultado.body.turno);
+  if (resultado.status === 201) await avisarNuevoTurno(resultado.body.turno);
   res.status(resultado.status).json(resultado.body);
 });
 
